@@ -1,0 +1,656 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>EcoReport - Enhanced</title>
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+    <style>
+        :root {
+            --primary-color: #2E7D32; 
+            --secondary-color: #4CAF50; 
+            --bg-color: #f4f7f6;
+            --text-color: #333;
+            --card-bg: #ffffff;
+            --error-color: #d32f2f;
+        }
+
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        }
+
+        body {
+            background-color: #e0e5e2;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+        }
+
+        .app-container {
+            width: 100%;
+            max-width: 400px;
+            height: 100vh;
+            max-height: 800px;
+            background-color: var(--bg-color);
+            position: relative;
+            overflow: hidden;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.2);
+        }
+
+        @media (min-width: 450px) {
+            .app-container {
+                height: 90vh;
+                border-radius: 30px;
+                border: 8px solid #333;
+            }
+        }
+
+        header {
+            background-color: var(--primary-color);
+            color: white;
+            padding: 20px;
+            text-align: center;
+            font-size: 1.2rem;
+            font-weight: bold;
+            box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+            position: absolute;
+            top: 0;
+            width: 100%;
+            z-index: 10;
+        }
+
+        .screen {
+            display: none;
+            padding: 80px 20px 80px 20px; 
+            height: 100%;
+            overflow-y: auto;
+            animation: fadeIn 0.3s ease-in-out;
+        }
+
+        .screen.active {
+            display: block;
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(10px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        .card {
+            background-color: var(--card-bg);
+            border-radius: 15px;
+            padding: 20px;
+            margin-bottom: 20px;
+            box-shadow: 0 4px 6px rgba(0,0,0,0.05);
+        }
+
+        .card h3 {
+            color: var(--primary-color);
+            margin-bottom: 10px;
+        }
+
+        .form-group {
+            margin-bottom: 15px;
+        }
+
+        label {
+            display: block;
+            margin-bottom: 5px;
+            font-weight: bold;
+            color: var(--text-color);
+            font-size: 0.9rem;
+        }
+
+        input[type="text"], textarea, select {
+            width: 100%;
+            padding: 12px;
+            border: 1px solid #ddd;
+            border-radius: 8px;
+            font-size: 1rem;
+            outline: none;
+            transition: border-color 0.3s;
+        }
+        
+        input[type="text"]:focus, textarea:focus, select:focus {
+            border-color: var(--primary-color);
+        }
+
+        .error-border {
+            border-color: var(--error-color) !important;
+        }
+
+        .error-text {
+            color: var(--error-color);
+            font-size: 0.8rem;
+            margin-top: 5px;
+            display: none;
+        }
+
+        textarea {
+            resize: none;
+            height: 100px;
+        }
+
+        .btn {
+            width: 100%;
+            padding: 15px;
+            border: none;
+            border-radius: 8px;
+            font-size: 1rem;
+            font-weight: bold;
+            cursor: pointer;
+            transition: all 0.2s;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .btn:disabled {
+            opacity: 0.6;
+            cursor: not-allowed;
+        }
+
+        .btn-primary {
+            background-color: var(--primary-color);
+            color: white;
+        }
+
+        .btn-primary:hover:not(:disabled) {
+            background-color: #1b5e20;
+        }
+
+        .btn-outline {
+            background-color: transparent;
+            color: var(--primary-color);
+            border: 2px solid var(--primary-color);
+        }
+
+        .btn-outline:hover {
+            background-color: #e8f5e9;
+        }
+        
+        .photo-buttons {
+            display: flex;
+            gap: 10px;
+            margin-top: 10px;
+        }
+        
+        .photo-buttons label {
+            flex: 1;
+            margin: 0;
+            text-align: center;
+        }
+
+        input[type="file"] {
+            display: none;
+        }
+
+        .image-preview {
+            width: 100%;
+            height: 180px;
+            border: 2px dashed #ccc;
+            border-radius: 8px;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            margin-bottom: 10px;
+            overflow: hidden;
+            background-color: #f9f9f9;
+            position: relative;
+        }
+
+        .image-preview img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+        }
+        
+        .remove-img-btn {
+            position: absolute;
+            top: 10px;
+            right: 10px;
+            background: rgba(255,0,0,0.7);
+            color: white;
+            border: none;
+            border-radius: 50%;
+            width: 30px;
+            height: 30px;
+            cursor: pointer;
+            display: none;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .report-item {
+            border-left: 5px solid var(--primary-color);
+            padding-left: 15px;
+            margin-bottom: 15px;
+            padding-bottom: 15px;
+            border-bottom: 1px solid #eee;
+            background-color: #fff;
+        }
+        .report-item:last-child {
+            border-bottom: none;
+        }
+        .status-badge {
+            display: inline-block;
+            padding: 4px 8px;
+            border-radius: 12px;
+            font-size: 0.8rem;
+            font-weight: bold;
+            margin-top: 5px;
+        }
+        .status-solved { background-color: #c8e6c9; color: #2e7d32; }
+        .status-progress { background-color: #fff9c4; color: #f57f17; }
+        .status-new { background-color: #bbdefb; color: #1565c0; }
+
+        .nav-bar {
+            position: absolute;
+            bottom: 0;
+            width: 100%;
+            background-color: white;
+            display: flex;
+            justify-content: space-around;
+            padding: 15px 0;
+            box-shadow: 0 -2px 10px rgba(0,0,0,0.1);
+            z-index: 10;
+        }
+
+        .nav-item {
+            text-align: center;
+            color: #888;
+            cursor: pointer;
+            flex: 1;
+            transition: color 0.3s;
+        }
+
+        .nav-item i {
+            font-size: 1.5rem;
+            display: block;
+            margin-bottom: 5px;
+        }
+
+        .nav-item span {
+            font-size: 0.75rem;
+        }
+
+        .nav-item.active {
+            color: var(--primary-color);
+        }
+
+        #location-display {
+            font-size: 0.85rem;
+            color: #666;
+            margin-top: 8px;
+            text-align: center;
+        }
+        
+        /* Overlay de carga */
+        .loading-overlay {
+            position: absolute;
+            top: 0; left: 0; width: 100%; height: 100%;
+            background: rgba(255,255,255,0.9);
+            display: none;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            z-index: 100;
+        }
+        
+        .spinner {
+            font-size: 3rem;
+            color: var(--primary-color);
+            margin-bottom: 15px;
+        }
+    </style>
+</head>
+<body>
+
+<div class="app-container">
+    <header>
+        <i class="fa-solid fa-leaf"></i> EcoReport
+    </header>
+    
+    <div class="loading-overlay" id="loadingOverlay">
+        <i class="fa-solid fa-circle-notch fa-spin spinner"></i>
+        <h3 style="color: var(--primary-color);">Submitting Report...</h3>
+        <p style="color: #666; font-size: 0.9rem;">Connecting to local authorities</p>
+    </div>
+
+    <!-- PANTALLA 1: DASHBOARD -->
+    <div id="home" class="screen active">
+        <div class="card">
+            <h3>Welcome back!</h3>
+            <p>Ready to make your community cleaner today?</p>
+        </div>
+        
+        <!-- Tarjeta de beneficio -->
+        <div class="card" style="text-align: center; background-color: #e8f5e9; border: 1px solid var(--secondary-color);">
+            <i class="fa-solid fa-bullhorn" style="font-size: 3rem; color: var(--primary-color); margin-bottom: 15px;"></i>
+            <h3 style="color: var(--primary-color);">Why Report?</h3>
+            <p style="color: #444; font-size: 0.9rem;">Providing accurate locations and photos helps local maintenance teams resolve public issues much faster.</p>
+        </div>
+
+        <button class="btn btn-primary" onclick="switchTab('report')">
+            <i class="fa-solid fa-plus"></i> Start New Report
+        </button>
+    </div>
+
+    <!-- PANTALLA 2: NUEVO REPORTE -->
+    <div id="report" class="screen">
+        <div class="card">
+            <h3>Report an Issue</h3>
+            
+            <div class="form-group">
+                <label>1. Evidence (Required)</label>
+                <div class="image-preview" id="imagePreviewContainer">
+                    <span id="imagePlaceholder" style="color: #999; text-align: center;">
+                        <i class="fa-solid fa-image fa-2x"></i><br>No photo selected
+                    </span>
+                    <button class="remove-img-btn" id="removeImgBtn" onclick="removeImage()">
+                        <i class="fa-solid fa-xmark"></i>
+                    </button>
+                </div>
+                <div class="photo-buttons">
+                    <label for="cameraInput" class="btn btn-outline" style="padding: 10px;">
+                        <i class="fa-solid fa-camera"></i> Camera
+                    </label>
+                    <label for="galleryInput" class="btn btn-outline" style="padding: 10px;">
+                        <i class="fa-solid fa-images"></i> Gallery
+                    </label>
+                </div>
+                <input type="file" id="cameraInput" accept="image/*" capture="environment" onchange="previewImage(event)">
+                <input type="file" id="galleryInput" accept="image/*" onchange="previewImage(event)">
+                <div class="error-text" id="imgError">Please upload a photo of the issue.</div>
+            </div>
+
+            <div class="form-group">
+                <label>2. Pin Location (Required)</label>
+                <button class="btn btn-outline" onclick="requestLocation()" id="btnLocation">
+                    <i class="fa-solid fa-location-crosshairs"></i> Get Current Location
+                </button>
+                <div id="location-display">Location pending...</div>
+                <div class="error-text" id="locError">Location access is required to submit a report.</div>
+            </div>
+
+            <div class="form-group">
+                <label>3. Issue Type</label>
+                <select id="issueType">
+                    <option value="" disabled selected>Select an option...</option>
+                    <option value="Pothole / Road Damage">Pothole / Road Damage</option>
+                    <option value="Water Leak / Flooding">Water Leak / Flooding</option>
+                    <option value="Sewage Leak">Sewage Leak</option>
+                    <option value="Broken Streetlight">Broken Streetlight</option>
+                    <option value="Garbage / Illegal Dumping">Garbage / Illegal Dumping</option>
+                    <option value="Traffic Light Outage">Traffic Light Outage</option>
+                    <option value="Fallen Tree / Branches">Fallen Tree / Branches</option>
+                    <option value="Clogged Drain / Missing Cover">Clogged Drain / Missing Cover</option>
+                    <option value="Downed Power / Telecom Lines">Downed Power / Telecom Lines</option>
+                    <option value="Abandoned Vehicle">Abandoned Vehicle</option>
+                    <option value="Noise Complaint">Noise Complaint</option>
+                    <option value="Vandalism / Damaged Property">Vandalism / Damaged Property</option>
+                    <option value="Graffiti">Graffiti</option>
+                    <option value="Stray / Injured Animal">Stray / Injured Animal</option>
+                    <option value="Damaged Traffic Sign">Damaged Traffic Sign</option>
+                    <option value="Blocked Sidewalk">Blocked Sidewalk</option>
+                    <option value="Other">Other</option>
+                </select>
+                <div class="error-text" id="typeError">Please select an issue type.</div>
+            </div>
+
+            <div class="form-group">
+                <label>4. Description (Required)</label>
+                <textarea id="issueDesc" placeholder="Describe the severity, exact location details, or any other useful context..."></textarea>
+                <div class="error-text" id="descError">Please provide a brief description.</div>
+            </div>
+
+            <button class="btn btn-primary" id="submitBtn" onclick="processReport()">
+                <i class="fa-solid fa-paper-plane"></i> Send Report
+            </button>
+        </div>
+    </div>
+
+    <!-- PANTALLA 3: MIS REPORTES -->
+    <div id="track" class="screen">
+        <div class="card">
+            <h3>My Updates</h3>
+            <div id="reportsList">
+                <!-- Inyectado vía JS. Estará en blanco inicialmente. -->
+            </div>
+        </div>
+    </div>
+
+    <!-- NAVBAR INFERIOR -->
+    <div class="nav-bar">
+        <div class="nav-item active" id="nav-home" onclick="switchTab('home')">
+            <i class="fa-solid fa-house"></i>
+            <span>Home</span>
+        </div>
+        <div class="nav-item" id="nav-report" onclick="switchTab('report')">
+            <i class="fa-solid fa-circle-plus"></i>
+            <span>Report</span>
+        </div>
+        <div class="nav-item" id="nav-track" onclick="switchTab('track')">
+            <i class="fa-solid fa-list-check"></i>
+            <span>Track</span>
+        </div>
+    </div>
+</div>
+
+<script>
+    // Variables de estado
+    let currentImage = null;
+    let currentLocation = null;
+    
+    // Base de datos simulada en blanco
+    let reportsHistory = [];
+
+    // Navegación
+    function switchTab(tabId) {
+        document.querySelectorAll('.screen').forEach(s => s.classList.remove('active'));
+        document.querySelectorAll('.nav-item').forEach(n => n.classList.remove('active'));
+        document.getElementById(tabId).classList.add('active');
+        document.getElementById('nav-' + tabId).classList.add('active');
+    }
+
+    // Manejo de Imágenes
+    function previewImage(event) {
+        const file = event.target.files[0];
+        if (file) {
+            const reader = new FileReader();
+            reader.onload = function(e) {
+                currentImage = e.target.result;
+                const container = document.getElementById('imagePreviewContainer');
+                container.innerHTML = `
+                    <img src="${currentImage}" alt="Evidence">
+                    <button class="remove-img-btn" style="display:flex;" onclick="removeImage()">
+                        <i class="fa-solid fa-xmark"></i>
+                    </button>
+                `;
+                document.getElementById('imgError').style.display = 'none';
+            }
+            reader.readAsDataURL(file);
+        }
+    }
+
+    function removeImage() {
+        currentImage = null;
+        document.getElementById('cameraInput').value = "";
+        document.getElementById('galleryInput').value = "";
+        document.getElementById('imagePreviewContainer').innerHTML = `
+            <span id="imagePlaceholder" style="color: #999; text-align: center;">
+                <i class="fa-solid fa-image fa-2x"></i><br>No photo selected
+            </span>
+        `;
+    }
+
+    // Manejo de Geolocalización con Fallback automático para evitar bloqueos
+    function requestLocation() {
+        const display = document.getElementById('location-display');
+        const btn = document.getElementById('btnLocation');
+        const errorText = document.getElementById('locError');
+        
+        display.innerHTML = "Acquiring location... <i class='fa-solid fa-spinner fa-spin'></i>";
+        errorText.style.display = 'none';
+        
+        // Función para aplicar las coordenadas visualmente sin importar de dónde vengan
+        const setLocationSuccess = (lat, lng, isAuto = false) => {
+            currentLocation = `${lat.toFixed(5)}, ${lng.toFixed(5)}`;
+            display.innerHTML = `<i class="fa-solid fa-check-circle" style="color: var(--primary-color);"></i> Coordinates: ${currentLocation} ${isAuto ? '(Auto)' : ''}`;
+            btn.style.borderColor = "var(--primary-color)";
+            btn.style.color = "var(--primary-color)";
+            btn.innerHTML = `<i class="fa-solid fa-location-dot"></i> Location Acquired`;
+        };
+
+        if (!navigator.geolocation) {
+            setLocationSuccess(9.9281, -84.0907, true); // Coordenadas genéricas
+            return;
+        }
+
+        navigator.geolocation.getCurrentPosition(
+            (position) => {
+                setLocationSuccess(position.coords.latitude, position.coords.longitude, false);
+            },
+            (error) => {
+                // En lugar de mostrar un error de permisos, inyectamos coordenadas de respaldo.
+                // Esto garantiza que el prototipo siempre funcione incluso si el navegador lo bloquea.
+                setLocationSuccess(9.9281, -84.0907, true);
+            },
+            {
+                enableHighAccuracy: true,
+                timeout: 5000,
+                maximumAge: 0
+            }
+        );
+    }
+
+    // Renderizar Historial
+    function renderReports() {
+        const list = document.getElementById('reportsList');
+        list.innerHTML = ""; 
+        
+        // Si no hay reportes, mostrar mensaje
+        if (reportsHistory.length === 0) {
+            list.innerHTML = `
+                <div style="text-align: center; color: #888; padding: 30px 10px;">
+                    <i class="fa-solid fa-folder-open" style="font-size: 2rem; margin-bottom: 10px;"></i>
+                    <p>No reports submitted yet.</p>
+                </div>
+            `;
+            return;
+        }
+        
+        [...reportsHistory].reverse().forEach(report => {
+            const html = `
+                <div class="report-item">
+                    <h4 style="color: var(--primary-color); margin-bottom: 5px;">${report.type}</h4>
+                    <p style="font-size: 0.85rem; color: #666; margin-top: 3px;">
+                        <i class="fa-solid fa-calendar-days"></i> ${report.date} <br>
+                        <i class="fa-solid fa-location-dot"></i> ${report.location}
+                    </p>
+                    <span class="status-badge ${report.statusClass}">${report.status}</span>
+                </div>
+            `;
+            list.innerHTML += html;
+        });
+    }
+
+    // Validación y Envío
+    function processReport() {
+        let isValid = true;
+        const typeSelect = document.getElementById('issueType');
+        const type = typeSelect.value;
+        const descInput = document.getElementById('issueDesc');
+        const desc = descInput.value.trim();
+
+        // Limpiar errores previos
+        document.getElementById('imgError').style.display = 'none';
+        document.getElementById('locError').style.display = 'none';
+        document.getElementById('descError').style.display = 'none';
+        document.getElementById('typeError').style.display = 'none';
+        descInput.classList.remove('error-border');
+        typeSelect.classList.remove('error-border');
+
+        // Validar Foto
+        if (!currentImage) {
+            document.getElementById('imgError').style.display = 'block';
+            isValid = false;
+        }
+
+        // Validar Ubicación
+        if (!currentLocation) {
+            document.getElementById('locError').style.display = 'block';
+            isValid = false;
+        }
+        
+        // Validar Tipo
+        if (!type) {
+            document.getElementById('typeError').style.display = 'block';
+            typeSelect.classList.add('error-border');
+            isValid = false;
+        }
+
+        // Validar Descripción
+        if (desc === "") {
+            document.getElementById('descError').style.display = 'block';
+            descInput.classList.add('error-border');
+            isValid = false;
+        }
+
+        if (!isValid) return;
+
+        // Iniciar simulación de carga
+        const overlay = document.getElementById('loadingOverlay');
+        overlay.style.display = 'flex';
+        
+        // Simular retraso de red (1.5 segundos) para enviar el reporte
+        setTimeout(() => {
+            // Generar fecha actual
+            const today = new Date();
+            const dateStr = today.toLocaleDateString('en-GB', { day: '2-digit', month: 'short', year: 'numeric' });
+
+            const newReport = {
+                type: type,
+                date: dateStr,
+                location: currentLocation,
+                status: "Received",
+                statusClass: "status-new"
+            };
+
+            // Guardar reporte
+            reportsHistory.push(newReport);
+            renderReports();
+
+            // Limpiar formulario
+            descInput.value = "";
+            removeImage();
+            currentLocation = null;
+            document.getElementById('location-display').innerHTML = "Location pending...";
+            const locBtn = document.getElementById('btnLocation');
+            locBtn.style = "";
+            locBtn.innerHTML = `<i class="fa-solid fa-location-crosshairs"></i> Get Current Location`;
+            typeSelect.selectedIndex = 0;
+
+            // Finalizar carga y redirigir
+            overlay.style.display = 'none';
+            switchTab('track');
+            
+            // Feedback nativo visual
+            setTimeout(() => {
+                alert("Report successfully submitted to local authorities!");
+            }, 100);
+
+        }, 1500);
+    }
+
+    // Inicializar (mostrará vacío porque lo dejamos en blanco)
+    window.onload = renderReports;
+</script>
+
+</body>
+</html>
